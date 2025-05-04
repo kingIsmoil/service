@@ -1,0 +1,46 @@
+{% extends 'base.html' %}
+{% block content %}
+  <h2>{{ problem.title }}</h2>
+  
+  {% if request.user == problem.user %}
+    <div class="problem-actions">
+      <a href="{% url 'problem_edit' problem.pk %}" class="btn-edit">Редактировать</a>
+      <a href="{% url 'problem_delete' problem.pk %}" class="btn-delete">Удалить</a>
+    </div>
+  {% endif %}
+
+  <p>{{ problem.description }}</p>
+  <p>Автор: {{ problem.user.username }}</p>
+  {% if problem.category %}<p>Категория: {{ problem.category.name }}</p>{% endif %}
+  <hr>
+
+  {% if not problem.is_resolved and request.user != problem.user %}
+    <h3>Оставить заявку:</h3>
+    <form method="post" action="{% url 'application_create' problem.pk %}">
+      {% csrf_token %}
+      {{ form.as_p }}
+      <button type="submit">Отправить заявку</button>
+    </form>
+  {% endif %}
+
+  <h3>Заявки:</h3>
+  <ul>
+    {% for app in applications %}
+      <li>
+        <strong>{{ app.user.username }}</strong>: {{ app.message }} ({{ app.proposed_price }} ₽)
+        {% if app.is_accepted %}
+          — <strong>Выбран</strong>
+        {% elif request.user == problem.user and not problem.is_resolved %}
+          | <a href="{% url 'application_accept' problem.pk app.pk %}">Принять</a>
+        {% endif %}
+        
+        {% if request.user == app.user and not problem.is_resolved %}
+          | <a href="{% url 'application_edit' app.pk %}">Редактировать</a>
+          | <a href="{% url 'application_delete' app.pk %}">Удалить</a>
+        {% endif %}
+      </li>
+    {% empty %}
+      <li>Пока нет заявок.</li>
+    {% endfor %}
+  </ul>
+{% endblock %}

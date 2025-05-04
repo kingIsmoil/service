@@ -1,0 +1,34 @@
+{% extends 'base.html' %}
+{% block content %}
+  <h2>Список проблем</h2>
+  <a href="{% url 'problem_create' %}">Добавить новую проблему</a>
+  <a href="{% url 'my_orders' %}" style="margin-left: 20px;">Мои заказы</a>
+  
+  <div style="margin: 20px 0;">
+    <form method="get">
+      <select name="category">
+        <option value="">Все категории</option>
+        {% for category in categories %}
+          <option value="{{ category.id }}" {% if selected_category == category.id %}selected{% endif %}>
+            {{ category.name }}
+          </option>
+        {% endfor %}
+      </select>
+      <input type="text" name="search" placeholder="Поиск..." value="{{ search_query }}">
+      <button type="submit">Фильтровать</button>
+    </form>
+  </div>
+
+  <ul>
+    {% for problem in problems %}
+      <li>
+        <a href="{% url 'problem_detail' problem.pk %}">{{ problem.title }}</a>
+        {% if problem.category %} ({{ problem.category.name }}) {% endif %}
+        — {{ problem.user.username }}
+        {% if problem.is_resolved %}<strong> (Решено)</strong>{% endif %}
+      </li>
+    {% empty %}
+      <li>Нет проблем по вашему запросу.</li>
+    {% endfor %}
+  </ul>
+{% endblock %}

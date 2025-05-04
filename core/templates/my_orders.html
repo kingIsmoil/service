@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+{% block content %}
+  <h2>Мои заказы</h2>
+  
+  <h3>Мои проблемы:</h3>
+  <ul>
+    {% for problem in my_problems %}
+      <li>
+        <a href="{% url 'problem_detail' problem.pk %}">{{ problem.title }}</a>
+        {% if problem.is_resolved %}<strong> (Решено)</strong>{% endif %}
+        
+        {% if not problem.is_resolved %}
+          <a href="{% url 'problem_edit' problem.pk %}">[Ред.]</a>
+          <a href="{% url 'problem_delete' problem.pk %}">[Удл.]</a>
+        {% endif %}
+      </li>
+    {% empty %}
+      <li>У вас нет созданных проблем.</li>
+    {% endfor %}
+  </ul>
+
+  <h3>Мои заявки:</h3>
+  <ul>
+    {% for app in my_applications %}
+      <li>
+        К проблеме: <a href="{% url 'problem_detail' app.problem.pk %}">{{ app.problem.title }}</a>
+        - Статус: {% if app.is_accepted %}<strong>Принята</strong>{% else %}Ожидает{% endif %}
+        
+        {% if not app.problem.is_resolved %}
+          <a href="{% url 'application_edit' app.pk %}">[Ред.]</a>
+          <a href="{% url 'application_delete' app.pk %}">[Удл.]</a>
+        {% endif %}
+      </li>
+    {% empty %}
+      <li>Вы не оставляли заявок.</li>
+    {% endfor %}
+  </ul>
+{% endblock %}
